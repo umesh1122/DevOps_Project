@@ -76,6 +76,72 @@ SSLCertificateFile   /etc/apache2/ssl/apache.key
 //
 # enable the module using a2ensite
 sudo a2ensite default-ssl.conf
-sudo service httpd restart
-curl –k https://nodeip
+sudo service httpd restart       #start the httpd service again to check
+curl –k https://nodeip   #check your web page
+
+
+#To perform the automated tests using testkitchen tool of Chef by configuring the .kitchen.yml file with the following code:
+
+
+driver:
+  name: vagrant
+
+provisioner:
+  name: chef_solo
+
+platforms:
+  - name: ubuntu-14.04
+  - name: centos-7.0
+
+suites:
+  - name: source
+    run_list:
+      - recipe[webserver::httpd]
+    config:
+        log_level: ":debug"
+        ssl_verify_mode: ":verify_peer"
+
+
+#Serverspec tool setup
+
+mkdir -p /opt/chef-ws/training/serverspec
+cd -p /opt/chef-ws/training/serverspec
+
+#setting up the Ruby helper script which loads Serverspec and sets the general configuration options used by the binary while executing tests
+
+#Create aa recipe in /opt/chef-ws/training/serverspec /spec_helper.rb
+
+require 'serverspec'
+require 'pathname'
+
+set :backend, :exec
+
+set :path, '/bin:/usr/local/bin:$PATH'
+
+
+#writing serverspec tests
+
+#create a recipe in /opt/chef-ws/training/serverspec /apache_test.rb
+
+describe package('httpd') do
+  it { should be_installed }
+end
+
+describe package('mod_ssl') do
+  it { should be_installed }
+end
+
+#Checking the package against ubuntu, converging it, verifying the packages and later destroying it
+
+$ kitchen test package-ubuntu-1404
+$ kitchen converge package-ubuntu-1404
+$kitchen verify package-ubuntu-1404
+kitchen destroy package-ubuntu-1404
+
+#Checking the package against Centos, converging it, verifying the packages and later destroying it
+$ kitchen test package- centos-7.0
+$ kitchen converge package- centos-7.0
+$kitchen verify package- centos-7.0
+kitchen destroy package- centos-7.0
+
 
