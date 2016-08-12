@@ -13,7 +13,7 @@ knife cookbook create webserver
 </html>
 
 
->>>>in default.rb file 
+>>>>in /cookbooks/recipes/default.rb file i write the following code
 #install mod_ssl package
 package 'mod_ssl' do
 action :install
@@ -51,18 +51,19 @@ curl https://nodeIP
 >>>> SSH to AWS web server and run the command line 
 
 #make a directory 'ssl' in apache configuration folder
-Sudo mkdir /etc/httpd/conf.d/ssl
+sudo mkdir /etc/httpd/conf.d/ssl
 
 #move into the directory
-Cd  ssl
+cd  ssl
 
 #creating ssl certificates
-Openssl req –x509 –nodes –days  365 –newkey  rsa:2048 –keyout /etc/httpd/conf.d/ssl/apache.key –out /etc/apache2/ssl/apache.cert
+openssl req –x509 –nodes –days  365 –newkey  rsa:2048 –keyout /etc/httpd/conf.d/ssl/apache.key –out /etc/apache2/ssl/apache.cert
 
 #now goto httpd.conf directory and then /mods_available directory to find the ssl certificates
-Cd /etc/httpd/httpd.conf
-Cd mods_available
-Sudo a2enmod ssl
+cd /etc/httpd/httpd.conf
+cd mods_available
+
+sudo a2enmod ssl
 Cd sites-available
 # create a file to configure virtualhost
 Sudo vi default-ssl.conf
@@ -74,7 +75,7 @@ SSLCertificateFile   /etc/apache2/ssl/apache.cert
 SSLCertificateFile   /etc/apache2/ssl/apache.key
 //
 # enable the module using a2ensite
-Sudo a2ensite default-ssl.conf
-Sudo service httpd restart
+sudo a2ensite default-ssl.conf
+sudo service httpd restart
 curl –k https://nodeip
 
