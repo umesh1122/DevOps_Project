@@ -1,0 +1,79 @@
+>>>>From my workstation
+
+knife cookbook create webserver 
+ 
+#under templates folder create index.html.erb with the following contents to be displayed on the web server
+<html>
+<head>
+<title>Hello World</title>
+</head>
+
+<body>
+<h1>Hello World </h1>
+</body>
+</html>
+
+
+>>>>in default.rb file 
+#Install apache
+
+package 'httpd' do
+action :install
+end
+
+#start httpd service
+service 'httpd' do
+action :start
+end
+
+#create the template for the web server home page
+template '/var/www/html/index.html' do
+              source 'index.html.erb'
+               mode “0644”
+end
+
+>>>>> from your workstation CLI
+
+knife cookbook upload webserver                
+
+knife bootstrap x.x.x.x 
+   --ssh-user ubuntu 
+  --sudo 
+  --identity-file ./.chef/mykey.pem 
+  --run-list webserver   
+curl https://nodeIP
+
+>>>> SSH to AWS web server...rom the command line 
+
+ 
+Sudo mkdir /etc/httpd/conf.d/ssl
+
+Cd  ssl
+
+Openssl req –x509 –nodes –days  365 –newkey  rsa:2048 –keyout /etc/httpd/conf.d/ssl/apache.key –out /etc/apache2/ssl/apache.cert
+
+Cd /etc/httpd/httpd.conf
+Cd mods_available
+Sudo a2enmod ssl
+Cd sites-available
+
+Sudo vim default-ssl.conf
+
+// <VitualHost  :*443>
+
+documentRoot /var/www/html/index.html
+SSLCertificateFile   /etc/apache2/ssl/apache.cert
+SSLCertificateFile   /etc/apache2/ssl/apache.key
+//
+
+Sudo a2ensite default-ssl.conf
+Sudo service httpd restart
+curl –k https://nodeip
+
+vi  /var/www/html/index.html
+
+// <html>
+<body>
+<h1>Hello world</h1>
+</body>
+</html> //
