@@ -7,7 +7,6 @@ knife cookbook create webserver
 <head>
 <title>Hello World</title>
 </head>
-
 <body>
 <h1>Hello World </h1>
 </body>
@@ -15,8 +14,12 @@ knife cookbook create webserver
 
 
 >>>>in default.rb file 
-#Install apache
+#install mod_ssl package
+package 'mod_ssl' do
+action :install
+end
 
+#Install apache
 package 'httpd' do
 action :install
 end
@@ -28,36 +31,41 @@ end
 
 #create the template for the web server home page
 template '/var/www/html/index.html' do
-              source 'index.html.erb'
-               mode “0644”
+source 'index.html.erb'
+mode “0644”
 end
 
 >>>>> from your workstation CLI
-
+#upload the cookbook over webserver
 knife cookbook upload webserver                
 
+#bootstrap the node
 knife bootstrap x.x.x.x 
    --ssh-user ubuntu 
   --sudo 
   --identity-file ./.chef/mykey.pem 
   --run-list webserver   
+#command to view the web page content
 curl https://nodeIP
 
->>>> SSH to AWS web server...rom the command line 
+>>>> SSH to AWS web server and run the command line 
 
- 
+#make a directory 'ssl' in apache configuration folder
 Sudo mkdir /etc/httpd/conf.d/ssl
 
+#move into the directory
 Cd  ssl
 
+#creating ssl certificates
 Openssl req –x509 –nodes –days  365 –newkey  rsa:2048 –keyout /etc/httpd/conf.d/ssl/apache.key –out /etc/apache2/ssl/apache.cert
 
+#now goto httpd.conf directory and then /mods_available directory to find the ssl certificates
 Cd /etc/httpd/httpd.conf
 Cd mods_available
 Sudo a2enmod ssl
 Cd sites-available
-
-Sudo vim default-ssl.conf
+# create a file to configure virtualhost
+Sudo vi default-ssl.conf
 
 // <VitualHost  :*443>
 
@@ -65,15 +73,8 @@ documentRoot /var/www/html/index.html
 SSLCertificateFile   /etc/apache2/ssl/apache.cert
 SSLCertificateFile   /etc/apache2/ssl/apache.key
 //
-
+# enable the module using a2ensite
 Sudo a2ensite default-ssl.conf
 Sudo service httpd restart
 curl –k https://nodeip
 
-vi  /var/www/html/index.html
-
-// <html>
-<body>
-<h1>Hello world</h1>
-</body>
-</html> //
